@@ -1,13 +1,15 @@
-import { GoogleGenAI } from '@google/genai';
+const { GoogleGenAI } = require('@google/genai');
 
-export default async function handler(req, res) {
-    // Allow CORS just in case
+module.exports = async function (req, res) {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        res.status(200).end();
+        return;
     }
 
     if (req.method !== 'POST') {
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            return res.status(500).json({ error: 'Server API key is not configured.' });
+            return res.status(500).json({ error: 'GEMINI_API_KEY environment variable is missing on Vercel.' });
         }
 
         const ai = new GoogleGenAI({ apiKey: apiKey });
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ reply: response.text });
     } catch (err) {
-        console.error("API Error:", err);
-        return res.status(500).json({ error: err.message || 'Failed to generate response' });
+        console.error("Server Error:", err);
+        return res.status(500).json({ error: err.message || 'Internal Server Error' });
     }
-}
+};
