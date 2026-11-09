@@ -1,7 +1,9 @@
 {
   "name": "my-custom-ai",
   "version": "1.0.0",
-  dependencies: {
+  "private": true,
+  "dependencies": {
     "@google/genai": "latest"
   }
 }
+
